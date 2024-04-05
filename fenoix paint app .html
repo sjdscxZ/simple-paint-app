@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+//This code creates a painting application where users can draw circles or stars on a canvas. They can select the shape to draw using a dropdown menu. The colors of the shapes are randomly generated, and users can draw multiple shapes on the canvas.
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fenopix Paint App</title>
+
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            height: 100vh;
+            margin: 0;
+            background-color: #f4f4f4;
+            font-family: Arial, sans-serif;
+        }
+        
+        #container {
+            text-align: center;
+        }
+        
+        .rainbow-text {
+            font-size: 48px;
+            font-weight: bold;
+            text-shadow: 2px 2px 2px rgba(0, 0, 0, 0.2);
+            margin-bottom: 20px;
+            animation: rainbow 4s infinite linear;
+        }
+        
+        @keyframes rainbow {
+            0% {
+                color: red;
+            }
+            20% {
+                color: orange;
+            }
+            40% {
+                color: yellow;
+            }
+            60% {
+                color: green;
+            }
+            80% {
+                color: blue;
+            }
+            100% {
+                color: violet;
+            }
+        }
+        
+        canvas {
+            border: 2px solid #000;
+            cursor: crosshair;
+        }
+        
+        #resetBtn {
+            margin-top: 20px;
+            padding: 8px 16px;
+            border: none;
+            background-color: #007bff;
+            color: #fff;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: background-color 0.3s ease;
+        }
+        
+        #resetBtn:hover {
+            background-color: #0056b3;
+        }
+        
+        #shapeSelect {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="container">
+
+        <h1 class="rainbow-text">F<span style="color: orange;">e</span>n<span style="color: yellow;">o</span>i<span style="color: green;">x</span> Paint App</h1>
+        <canvas id="paintCanvas" width="800" height="600"></canvas>         <button id="resetBtn">Reset</button>         <select id="shapeSelect">
+            <option value="circle">Circle</option>
+            <option value="star">Star</option>
+        </select>     </div>
+
+
+    <script>
+        const canvas = document.getElementById('paintCanvas');    
+        const ctx = canvas.getContext('2d');    
+        let isDrawing = false;    
+        let shapes = []; // Array to store shapes
+            
+        let startX, startY;    
+        let initialColor;    
+        let selectedShape = 'circle';
+
+            
+        canvas.addEventListener('mousedown', function(e) {      
+            isDrawing = true;      
+            [startX, startY] = [e.offsetX, e.offsetY];      
+            initialColor = getRandomColor();    
+        });
+
+            
+        canvas.addEventListener('mousemove', function(e) {      
+            if (!isDrawing) return;      
+            const mouseX = e.offsetX;      
+            const mouseY = e.offsetY;      
+            const dx = mouseX - startX;      
+            const dy = mouseY - startY;      
+            const radius = Math.sqrt(dx ** 2 + dy ** 2);      
+            drawShape(startX, startY, radius, initialColor);    
+        });
+
+            
+        canvas.addEventListener('mouseup', function() {      
+            if (!isDrawing) return;      
+            isDrawing = false;      
+            const dx = event.offsetX - startX;      
+            const dy = event.offsetY - startY;      
+            const radius = Math.sqrt(dx ** 2 + dy ** 2);      
+            storeShape(startX, startY, radius, initialColor);    
+        });
+
+            
+        function drawShape(x, y, radius, color) {      
+            ctx.clearRect(0, 0, canvas.width, canvas.height);      
+            shapes.forEach(shape => {        
+                if (shape.type === 'circle') {          
+                    ctx.beginPath();          
+                    ctx.arc(shape.x, shape.y, shape.radius, 0, Math.PI * 2);          
+                    ctx.fillStyle = shape.color;          
+                    ctx.fill();          
+                    ctx.closePath();        
+                } else if (shape.type === 'star') {          
+                    drawStar(shape.x, shape.y, 5, shape.radius, shape.radius / 2, shape.color);        
+                }      
+            });      
+            if (selectedShape === 'circle') {        
+                ctx.beginPath();        
+                ctx.arc(x, y, radius, 0, Math.PI * 2);        
+                ctx.fillStyle = color;        
+                ctx.fill();        
+                ctx.closePath();      
+            } else if (selectedShape === 'star') {        
+                drawStar(x, y, 5, radius, radius / 2, color);      
+            }    
+        }
+
+            
+        function storeShape(x, y, radius, color) {      
+            shapes.push({        
+                type: selectedShape,
+                        x: x,
+                        y: y,
+                        radius: radius,
+                        color: color      
+            });    
+        }
+
+            
+        function drawStar(x, y, arms, outerRadius, innerRadius, color) {      
+            let rot = (Math.PI / 2) * 3;      
+            let xCenter = x;      
+            let yCenter = y;      
+            let step = Math.PI / arms;
+
+                  
+            ctx.beginPath();      
+            ctx.moveTo(xCenter, yCenter - outerRadius);      
+            for (let i = 0; i < arms; i++) {        
+                x = xCenter + Math.cos(rot) * outerRadius;        
+                y = yCenter + Math.sin(rot) * outerRadius;        
+                ctx.lineTo(x, y);        
+                rot += step;
+
+                        
+                x = xCenter + Math.cos(rot) * innerRadius;        
+                y = yCenter + Math.sin(rot) * innerRadius;        
+                ctx.lineTo(x, y);        
+                rot += step;      
+            }      
+            ctx.lineTo(xCenter, yCenter - outerRadius);      
+            ctx.closePath();
+
+                  
+            ctx.fillStyle = color;      
+            ctx.fill();    
+        }
+
+            
+        document.getElementById('shapeSelect').addEventListener('change', function() {      
+            selectedShape = this.value;    
+        });
+
+            
+        document.getElementById('resetBtn').addEventListener('click', function() {      
+            ctx.clearRect(0, 0, canvas.width, canvas.height);      
+            shapes = []; // Clear the shapes array
+                
+        });
+
+            
+        function getRandomColor() {      
+            return '#' + Math.floor(Math.random() * 16777215).toString(16);    
+        }
+    </script>
+</body>
+
+</html>
