@@ -1,1 +1,1 @@
-# simple-paint-app
+Fenopix Paint App is a simple painting application built using HTML, CSS, and JavaScript. Users can draw circles or stars on a canvas by selecting the shape from a dropdown menu. The colors of the shapes are randomly generated, and users can draw multiple shapes on the canvas. The application provides a reset button to clear the canvas.
